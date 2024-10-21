@@ -1,5 +1,11 @@
 <?php
 
+/**
+Модель - это специальный класс в Laravel,
+который представляет таблицу в базе данных и позволяет легко взаимодействовать с её записями
+**/
+
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,6 +15,9 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -49,4 +58,24 @@ class User extends Authenticatable
             $this->attributes['password'] = Hash::make($password);
         }
     }
+
+
+    /**
+    Добавление связи в модели
+    метод для отношения "один к одному"
+    **/
+    public function avatar(): HasOne
+    {
+        return $this->hasOne(UserAvatar::class);
+    }
+
+
+    /**
+     * Связь "один ко многим" с таблицей галереи пользователей.
+     */
+    public function galleries(): HasMany
+    {
+        return $this->hasMany(UserGallery::class);
+    }
+
 }

@@ -1,5 +1,9 @@
 <?php
 
+/**
+Контроллер для веб интерфейса
+**/
+
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Actions\CreateUser;
