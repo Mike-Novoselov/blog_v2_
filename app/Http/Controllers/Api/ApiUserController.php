@@ -34,84 +34,130 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 
+use App\Http\Controllers\Api\ApiActions\GetAllUsersAction;
+use App\Http\Controllers\Api\ApiActions\CreateUserAction;
+use App\Http\Controllers\Api\ApiActions\GetUserAction;
+use App\Http\Controllers\Api\ApiActions\UpdateUserAction;
+use App\Http\Controllers\Api\ApiActions\DeleteUserAction;
+
+//class ApiUserController extends Controller
+//{
+//    /**
+//    Получить список всех пользователей.
+//    */
+//    public function index()
+//    {
+//        // Возвращает все записи пользователей из базы данных
+//        return User::all();
+//    }
+//
+//    /**
+//    Создать нового пользователя.
+//    */
+//    public function store(Request $request)
+//    {
+//        // Валидация входящих данных
+//        $request->validate([
+//            'name' => 'required|string|max:255',  // Имя обязательно, строка, максимум 255 символов
+//            'email' => 'required|email|unique:users',  // Email обязателен, должен быть уникальным в таблице users
+//            'password' => 'required|string|min:8',  // Пароль обязателен, минимум 8 символов
+//        ]);
+//
+//        // Создание нового пользователя в базе данных
+//        $user = User::create([
+//            'name' => $request->name,
+//            'email' => $request->email,
+//            'password' => bcrypt($request->password),  // Хеширование пароля
+//        ]);
+//
+//        // Возвращает ответ с данными нового пользователя и статусом 201 (Created)
+//        return response()->json($user, 201);
+//    }
+//
+//    /**
+//    Получить данные конкретного пользователя.
+//    */
+//    public function show(User $user)
+//    {
+//        // Возвращает данные пользователя, переданного через параметр маршрута
+//        return $user;
+//    }
+//
+//    /**
+//    Обновить данные пользователя.
+//    */
+//    public function update(Request $request, User $user)
+//    {
+//        // Валидация входящих данных
+//        $request->validate([
+//            'name' => 'string|max:255',  // Имя должно быть строкой и не больше 255 символов
+//            'email' => 'email|unique:users,email,' . $user->id,  // Email должен быть уникальным, исключая текущего пользователя
+//            'password' => 'string|min:8|nullable',  // Пароль не обязателен, но если указан, должен быть минимум 8 символов
+//        ]);
+//
+//        // Обновление данных пользователя
+//        $user->update($request->only(['name', 'email', 'password']));
+//
+//        // Возвращает обновленного пользователя и статус 200 (OK)
+//        return response()->json($user, 200);
+//    }
+//
+//    /**
+//    Удалить пользователя.
+//    */
+//    public function destroy(User $user)
+//    {
+//        // Удаление пользователя из базы данных
+//        $user->delete();
+//
+//        // Возвращает пустой ответ с кодом 204 (No Content)
+//        return response()->json(null, 204);
+//    }
+//}
+
 class ApiUserController extends Controller
 {
     /**
      * Получить список всех пользователей.
-     *
      */
-    public function index()
+    public function index(GetAllUsersAction $action)
     {
-        // Возвращает все записи пользователей из базы данных
-        return User::all();
+        return $action->execute(); // Вызываем действие получения всех пользователей
     }
 
     /**
      * Создать нового пользователя.
-     *
      */
-    public function store(Request $request)
+    public function store(Request $request, CreateUserAction $action)
     {
-        // Валидация входящих данных
-        $request->validate([
-            'name' => 'required|string|max:255',  // Имя обязательно, строка, максимум 255 символов
-            'email' => 'required|email|unique:users',  // Email обязателен, должен быть уникальным в таблице users
-            'password' => 'required|string|min:8',  // Пароль обязателен, минимум 8 символов
-        ]);
+        $user = $action->execute($request); // Вызываем действие создания пользователя
 
-        // Создание нового пользователя в базе данных
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),  // Хеширование пароля
-        ]);
-
-        // Возвращает ответ с данными нового пользователя и статусом 201 (Created)
         return response()->json($user, 201);
     }
 
     /**
      * Получить данные конкретного пользователя.
-     *
      */
-    public function show(User $user)
+    public function show(User $user, GetUserAction $action)
     {
-        // Возвращает данные пользователя, переданного через параметр маршрута
-        return $user;
+        return $action->execute($user); // Вызываем действие получения одного пользователя
     }
 
     /**
      * Обновить данные пользователя.
-     *
      */
-    public function update(Request $request, User $user)
+    public function update(Request $request, User $user, UpdateUserAction $action)
     {
-        // Валидация входящих данных
-        $request->validate([
-            'name' => 'string|max:255',  // Имя должно быть строкой и не больше 255 символов
-            'email' => 'email|unique:users,email,' . $user->id,  // Email должен быть уникальным, исключая текущего пользователя
-            'password' => 'string|min:8|nullable',  // Пароль не обязателен, но если указан, должен быть минимум 8 символов
-        ]);
+        $user = $action->execute($request, $user); // Вызываем действие обновления пользователя
 
-        // Обновление данных пользователя
-        $user->update($request->only(['name', 'email', 'password']));
-
-        // Возвращает обновленного пользователя и статус 200 (OK)
         return response()->json($user, 200);
     }
 
     /**
      * Удалить пользователя.
-     *
      */
-    public function destroy(User $user)
+    public function destroy(User $user, DeleteUserAction $action)
     {
-        // Удаление пользователя из базы данных
-        $user->delete();
-
-        // Возвращает пустой ответ с кодом 204 (No Content)
-        return response()->json(null, 204);
+        return $action->execute($user); // Вызываем действие удаления пользователя
     }
 }
-
-
